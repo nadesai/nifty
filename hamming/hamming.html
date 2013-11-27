@@ -1,0 +1,419 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!-- saved from url=(0052)http://nifty.stanford.edu/2011/hansen-hamming-codes/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript" src="./hamming_files/starfish.js"></script>
+
+  
+  <title>Hamming Codes SiGCSE 2011</title>
+  <link href="./hamming_files/CS2Style.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<h1 align="center">Hamming
+Codes</h1>
+<div style="text-align: center;"><big><big>Stuart
+Hansen<br>
+UW-Parkside<br>
+hansen@uwp.edu
+</big></big></div>
+<span style="font-weight: bold;"><br>
+</span>
+<table style="text-align: left; width: 100%;" border="1" cellpadding="2" cellspacing="2">
+  <tbody>
+    <tr>
+      <td style="vertical-align: top;">Summary</td>
+      <td style="vertical-align: top;">Encode
+and decode files using a Hamming (7,4) algorithm.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Topics<br>
+      </td>
+      <td style="vertical-align: top;">Error
+correcting codes<br>
+Matrix multiplication<span style="font-weight: bold;"><span style="font-weight: bold;"><br>
+      </span></span>Binary
+representations of data<br>
+Binary I/O (optional)<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Audience<br>
+      </td>
+      <td style="vertical-align: top;">Appropriate
+for CS2 or a later
+course. &nbsp;A simplified version could be used in CS1.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Difficulty<br>
+      </td>
+      <td style="vertical-align: top;">This
+is an intermediate&nbsp;assignment, taking 1 or 2 weeks for a CS2
+student.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Strengths<br>
+      </td>
+      <td style="vertical-align: top;">Integrates
+disparate topics from programming and discrete math into a cool
+application.<br>
+Solves a classical problem in Computer Science.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Weaknesses<br>
+      </td>
+      <td style="vertical-align: top;">Like
+so many other topics in CS, there are some very inelegant ways to
+approach parts of the problem. &nbsp;For example, if encoding
+Integers, Java's Integer
+class contains a method: <span style="font-family: monospace;">static
+String
+toBinaryString(int i)</span>, which
+students can use to pull apart the Integer into its binary
+representation rather than use the more appropriate bitwise operators.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Dependencies<br>
+      </td>
+      <td style="vertical-align: top;">Requires
+an understanding of matrix multiplication and binary representations of
+data, including bitwise operators and binary I/O.<br>
+      </td>
+    </tr>
+    <tr>
+      <td style="vertical-align: top;">Variants<br>
+      </td>
+      <td style="vertical-align: top;">There
+are&nbsp;three steps to implementing Hamming codes and you can make
+each easier or more difficult.<br>
+      <br>
+      <span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;,&quot;serif&quot;;"><span style="font-weight: bold;">Make
+the Data Bits Accessible</span><br>
+Easy - Give the students an array of bits.<br>
+Harder - Give the students an array of Integers and make them pull out
+the bits of each using bitwise operators.<br>
+Most Difficult - Give the students an arbitrary file and make them read
+it byte by byte pulling the bits out of each byte.<br>
+      <br>
+      <span style="font-weight: bold;">Calculate
+the Parity Bits</span><br>
+Brute Force, but Easy to Understand - Add the appropriate data bits
+together to
+calculate each parity bit.<br>
+Easy, but Harder to Understand - Use matrix multiplication (mod 2) to
+generate the code block.<br>
+Most Difficult - Have the students develop the matrices needed on their
+own.<br>
+      <br>
+      <span style="font-weight: bold;">Storing
+the Results</span><br>
+Easy - Have the students write the code bits to the screen.<br>
+Harder - Append a leading 0 to each code block and have the students
+write the byte to a file.<br>
+Most Difficult - Have the students develop a BitStream class and write
+the
+results to a file using it.</span></td>
+    </tr>
+  </tbody>
+</table>
+<h2><br>
+</h2>
+<h2>Review of Hamming Codes</h2>
+<p class="t">(The following
+discussion borrows, in part, from
+Wikipedia's Hamming code page.) &nbsp;Hamming codes
+are error-correcting codes.<span style="">&nbsp;
+</span>They are named after their
+inventor, Richard
+Hamming. Hamming was working for Bell labs in the 1940s.<span style="">&nbsp;
+</span>He
+grew frustrated with how often he had to
+restart his programs because a read error occurred.<span style="">&nbsp;
+</span>He
+developed Hamming codes as a way of
+detecting and correcting errors.<span style="">&nbsp; </span>Hamming
+codes can detect and correct single-bit errors or can detect (but not
+correct)
+up to two simultaneous bit errors.<span style="">&nbsp; </span></p>
+<p class="t"><o:p></o:p>Hamming
+codes require <span style="font-style: italic;">O(lg(n))</span>
+parity
+bits for <span style="font-style: italic;">n</span>
+data bits.<span style="">&nbsp;
+</span>Each
+parity bit checks some (but not all) of
+the data bits.<span style="">&nbsp;
+</span>If an error occurs in a
+data bit, all the parity bits that checked that bit will show the
+error,
+allowing us to uniquely determine where the error occurred. &nbsp;<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;,&quot;serif&quot;;">The
+parity bit at position 2<sup>k-1</sup>
+checks
+bits in positions having bit k (1 based) set in their binary
+representation. </span>The
+following table summarizes the technique.</p>
+<div align="center">
+<table style="border: medium none ; background: rgb(249, 249, 249) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 203.95pt; border-collapse: collapse;" class="MsoNormalTable" border="1" cellpadding="0" cellspacing="0" width="272">
+  <tbody>
+    <tr style="height: 31.75pt;">
+      <td colspan="2" style="border: 1pt solid rgb(170, 170, 170); padding: 0.75pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>Bit
+position<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: solid solid solid none; border-color: rgb(170, 170, 170) rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: 1pt 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>1<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: solid solid solid none; border-color: rgb(170, 170, 170) rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: 1pt 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>2<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: solid solid solid none; border-color: rgb(170, 170, 170) rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: 1pt 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>3<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: solid solid solid none; border-color: rgb(170, 170, 170) rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: 1pt 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>4<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: solid solid solid none; border-color: rgb(170, 170, 170) rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: 1pt 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>5<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: solid solid solid none; border-color: rgb(170, 170, 170) rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: 1pt 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>6<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: solid solid solid none; border-color: rgb(170, 170, 170) rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: 1pt 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>7<o:p></o:p></b></p>
+      </td>
+      <td rowspan="5" style="border-style: solid solid solid none; border-color: rgb(170, 170, 170) rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: 1pt 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">...<o:p></o:p></p>
+      </td>
+    </tr>
+    <tr style="height: 31.75pt;">
+      <td colspan="2" style="border-style: none solid solid; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170); border-width: medium 1pt 1pt; padding: 0.75pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>Encoded
+data bits<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; background: rgb(144, 255, 144) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>p1<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; background: rgb(144, 255, 144) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>p2<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>d1<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; background: rgb(144, 255, 144) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>p3<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>d2<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>d3<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>d4<o:p></o:p></b></p>
+      </td>
+    </tr>
+    <tr style="height: 31.75pt;">
+      <td style="border-style: none solid solid; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170); border-width: medium 1pt 1pt; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 50.15pt; height: 31.75pt;" rowspan="3" width="67">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>Parity<br>
+bit<br>
+coverage<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 17.5pt; height: 31.75pt;" width="23">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>p1<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><o:p>&nbsp;</o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><o:p>&nbsp;</o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><o:p>&nbsp;</o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+    </tr>
+    <tr style="height: 31.75pt;">
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 17.5pt; height: 31.75pt;" width="23">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>p2<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><o:p>&nbsp;</o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><o:p>&nbsp;</o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><o:p>&nbsp;</o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+    </tr>
+    <tr style="height: 31.75pt;">
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; background: rgb(242, 242, 242) none repeat scroll 0% 50%; -moz-background-clip: initial; -moz-background-origin: initial; -moz-background-inline-policy: initial; width: 17.5pt; height: 31.75pt;" width="23">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><b>p3<o:p></o:p></b></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><o:p>&nbsp;</o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><o:p>&nbsp;</o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center"><o:p>&nbsp;</o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+      <td style="border-style: none solid solid none; border-color: -moz-use-text-color rgb(170, 170, 170) rgb(170, 170, 170) -moz-use-text-color; border-width: medium 1pt 1pt medium; padding: 2.4pt; height: 31.75pt;">
+      <p class="MsoNormal" style="margin: 12pt 0in; text-align: center;" align="center">X<o:p></o:p></p>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p class="t">Shown are 7
+encoded bits (3 parity, 4 data) but the pattern
+continues indefinitely. The key thing about Hamming Codes that can
+easily be
+seen from visual inspection is that any given bit has a unique parity
+bit
+coverage. For example, the only data bit covered by p1 and p3 (and no
+other
+bits) is bit 5 (d2). It is this unique bit coverage that lets a Hamming
+Code
+correct any single bit error.</p>
+<p class="t"><o:p></o:p>It
+also shows how a two-bit error can be detected but not corrected.
+For example, if bits 1 (p1) and 2 (p2) were flipped then this would be
+confused
+with bit 3 (d1) being flipped since the parity bit coverage of bit 3 is
+bits 1 and
+2.</p>
+<p class="t"><o:p></o:p>Hamming
+codes can be described in terms of the total number of bits
+per block and the number of data bits.<span style="">&nbsp; </span>Hamming(7,4)
+encodes 4 data bits into 7 bits by adding three parity bits, as
+the table above.<span style="">&nbsp;
+</span></p>
+<h2><br>
+</h2>
+<h2>Example</h2>
+<p class="t">Suppose we
+want to use Hamming (7,4) to encode the byte 1011 0001.<br>
+The first thing we will do is split the byte into two Hamming code
+data blocks, 1011 and 0001.<br>
+We expand the first block on the left to 7 bits: _ _ 1 _ 0 1 1.<br>
+The first missing bit (bit 1) is 0, because adding bits 3, 5 and 7
+gives an even number (2).<br>
+The second missing bit (bit 2) is 1, because adding bits 3, 6 and 7
+gives an odd number (3).<br>
+The last missing bit (bit 4) is 0, because adding bits 5, 6 and 7
+gives an even number (2).<br>
+This means our 7 bit block is: <span style="color: rgb(84, 141, 212);">0</span><span style="color: rgb(51, 102, 255);"> 1</span>
+1 <span style="color: rgb(51, 102, 255);">0</span>
+0 1 1</p>
+<p class="t">We expand the
+second block to 7 bits using similar logic, giving: <span style="color: rgb(51, 102, 255);">1 1</span>
+0 <span style="color: rgb(51, 102, 255);">1</span>
+0 0 1<br>
+<o:p></o:p>7
+bits do not a byte make, so we can add a leading 0 to each code block.</p>
+<p class="t"></p>
+<h2>Correcting Errors</h2>
+<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;,&quot;serif&quot;;">Suppose
+we send our first code block to a file, or out
+across the Internet, and accidentally bit 5 gets flipped,
+giving:&nbsp;</span><span style="color: rgb(84, 141, 212);">0</span><span style="color: rgb(51, 102, 255);"> 1</span>
+1 <span style="color: rgb(51, 102, 255);">0</span>
+<span style="color: rgb(255, 0, 0);">1</span>
+1 1<span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;,&quot;serif&quot;;">.<br>
+We check our parity bits and find that p1 and p3 (bits 1 and 4) show an
+error has occurred. &nbsp;<br>
+1 + 4 = 5, so we know bit 5 is incorrect and we change it back to 0.<br>
+<br>
+</span><span style="font-size: 12pt; font-family: &quot;Times New Roman&quot;,&quot;serif&quot;;"></span>
+<h2>Commentary</h2>
+Hamming codes are not new. &nbsp;They have been around since the
+1950s. &nbsp;In the 1960s and 70s, CS curricula often included a
+Files course where it was common to cover topics like error correcting
+codes. &nbsp;Modern hardware is much more reliable and error
+correcting
+codes are no longer considered core CS
+curriculum. &nbsp;Students find this assignment engaging because:<br>
+<ul>
+  <li>CS Students still like to
+know how things work. &nbsp;Most
+students find a single parity bit easy to understand. &nbsp;The
+additional parity bits are something many of them haven't encountered
+before, but they can understand how they work quite easily.</li>
+  <li>The assignment integrates
+matrix multiplication with binary
+representations of data, two topics typically covered early in a CS
+curriculum, but often not with an associated programming project.</li>
+  <li>CS students find alternative
+data representations cool.
+&nbsp;This assignment
+is in the same spirit as Huffman Trees, LZW compression and RSA
+encryption. &nbsp;It stretches students' brains into different ways
+of
+thinking about encoding data and they like it.</li>
+</ul>
+<h3><br>
+</h3>
+<h2>Assignment Documents</h2>
+<ul>
+  <li><a href="http://nifty.stanford.edu/2011/hansen-hamming-codes/HammingCodes.doc">Hamming Codes.doc</a></li>
+  <li><a href="http://nifty.stanford.edu/2011/hansen-hamming-codes/HammingCodes.rtf">HammingCodes.rtf</a></li>
+  <li><a href="http://nifty.stanford.edu/2011/hansen-hamming-codes/HammingCodes.ppt">Hamming Codes.pdf</a></li>
+</ul>
+<h2><br>
+</h2>
+<h2>SIGCSE Presentation</h2>
+<ul>
+  <li><a href="http://nifty.stanford.edu/2011/hansen-hamming-codes/HammingCodes.ppt">HammingCodes.ppt</a></li>
+</ul>
+<h3><br>
+</h3>
+<br>
+<br>
+
+<hr>
+<p>Extra info about this assignment:
+<script type="text/javascript">
+star();
+</script><iframe src="./hamming_files/comments.html" id="comments_frame" name="comments" width="100%" height="100%" frameborder="0" background-color="#000000" scrolling="yes" <="" iframe="">
+
+&lt;/body&gt;
+&lt;/html&gt;
+
+</iframe></p></body></html>
